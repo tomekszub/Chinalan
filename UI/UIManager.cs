@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -15,9 +16,9 @@ public class UIManager : MonoBehaviour
     // "wskazniki" do przycisku, tektu wyswietlajacego liczbe oczek, notyfikacje i panel ustawien
     public Button buttonRoll;
     public Button buttonNextTurn;
-    public Text diceText;
-    public Text notificationText;
-    public Text turnText;
+    public TMP_Text diceText;
+    public TMP_Text notificationText;
+    public TMP_Text playerNameText;
     public GameObject optionsPanel;
     public GameObject statsPanel;
     [SerializeField]
@@ -95,7 +96,7 @@ public class UIManager : MonoBehaviour
 
     public void SetPlayerNameLabel(string name)
     {
-        turnText.text = name;
+        playerNameText.text = name;
     }
 
     public void UpdateSkillSlotAppearance(int slotIndex, int cooldown)
@@ -116,7 +117,7 @@ public class UIManager : MonoBehaviour
     {
         diceText.text = "";
         notificationText.text = "";
-        turnText.text = firstPlayerName;
+        playerNameText.text = firstPlayerName;
         buttonRoll.interactable = true;
         buttonNextTurn.interactable = false;
         optionsPanel.SetActive(false);
