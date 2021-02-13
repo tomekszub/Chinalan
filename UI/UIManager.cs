@@ -30,6 +30,8 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     Button[] skillButtons;
     [SerializeField]
+    GameObject[] skillFrames;
+    [SerializeField]
     List<UIStats> UIstats = new List<UIStats>(4);
 
     private void Awake()
@@ -99,20 +101,6 @@ public class UIManager : MonoBehaviour
         playerNameText.text = name;
     }
 
-    public void UpdateSkillSlotAppearance(int slotIndex, int cooldown)
-    {
-        if(cooldown > 0)
-        {
-            skillButtons[slotIndex].interactable = false;
-            skillButtons[slotIndex].GetComponentInChildren<TMP_Text>().text = cooldown.ToString();
-        }
-        else
-        {
-            skillButtons[slotIndex].interactable = true;
-            skillButtons[slotIndex].GetComponentInChildren<TMP_Text>().text = "";
-        }
-    }
-
     public void ResetGameUI(string firstPlayerName)
     {
         diceText.text = "";
@@ -150,5 +138,22 @@ public class UIManager : MonoBehaviour
             skillButtons[i].GetComponent<Image>().sprite = Resources.Load<Sprite>("Icons/" + skills[i].iconName);
             UpdateSkillSlotAppearance(i, skills[i].currCooldown);
         }
+    }
+    public void UpdateSkillSlotAppearance(int slotIndex, int cooldown)
+    {
+        if (cooldown > 0)
+        {
+            skillButtons[slotIndex].interactable = false;
+            skillButtons[slotIndex].GetComponentInChildren<TMP_Text>().text = cooldown.ToString();
+        }
+        else
+        {
+            skillButtons[slotIndex].interactable = true;
+            skillButtons[slotIndex].GetComponentInChildren<TMP_Text>().text = "";
+        }
+    }
+    public void ToggleSkillHighlight(int index, bool toggle)
+    {
+        skillFrames[index].SetActive(toggle);
     }
 }
