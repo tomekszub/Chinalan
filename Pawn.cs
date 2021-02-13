@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Pawn : MonoBehaviour
@@ -21,8 +20,6 @@ public class Pawn : MonoBehaviour
     public bool IsSafe { get => isSafe; set => isSafe = value; }
 
     PawnStats pawnStats;
-
-    
 
     void Start ()
     {
@@ -89,131 +86,5 @@ public class Pawn : MonoBehaviour
         }
         return cost;
     }
-
-    /*public void ApplyEffect(Effect e)
-    {
-        if (e.typeOfEffect == Effect.EffectType.Acceleration && !pawnStats.immunes[0])
-        {
-            for (int i = 1; i < pawnStats.terrainTypeMovements.Length; i++)
-            {
-                pawnStats.terrainTypeMovements[i] /= 2;
-            }
-        }
-        else if (e.typeOfEffect == Effect.EffectType.AccelerationImmune)
-        {
-            pawnStats.immunes[0] = true;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.AdditionalMovement)
-        {
-            pawnStats.AdditionalMove += 1;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.DamageImmune)
-        {
-            pawnStats.immunes[1] = true;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.GrassSpeed && !pawnStats.immunes[0])
-        {
-            pawnStats.terrainTypeMovements[1] /= 2;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.Immune)
-        {
-            for (int i = 1; i < pawnStats.immunes.Length; i++)
-            {
-                pawnStats.immunes[i] = true;
-            }
-        }
-        else if (e.typeOfEffect == Effect.EffectType.SandSpeed && !pawnStats.immunes[0])
-        {
-            pawnStats.terrainTypeMovements[2] /= 2;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.Slow && !pawnStats.immunes[2])
-        {
-            for (int i = 1; i < pawnStats.terrainTypeMovements.Length; i++)
-            {
-                pawnStats.terrainTypeMovements[i] *= 2;
-            }
-        }
-        else if (e.typeOfEffect == Effect.EffectType.SlowImmune)
-        {
-            pawnStats.immunes[2] = true;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.SnowSpeed && !pawnStats.immunes[0])
-        {
-            pawnStats.terrainTypeMovements[3] /= 2;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.Stun && !pawnStats.immunes[3])
-        {
-            isAbleToMove = false;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.StunImmune)
-        {
-            pawnStats.immunes[3] = true;
-        }
-    }
-    public void DeleteEffect(Effect e)
-    {
-        if (e.typeOfEffect == Effect.EffectType.Acceleration)
-        {
-            for (int i = 1; i < pawnStats.terrainTypeMovements.Length; i++)
-            {
-                pawnStats.terrainTypeMovements[i] *= 2;
-            }
-        }
-        else if (e.typeOfEffect == Effect.EffectType.AccelerationImmune)
-        {
-            pawnStats.immunes[0] = false;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.AdditionalMovement)
-        {
-            pawnStats.AdditionalMove -= 1;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.DamageImmune)
-        {
-            pawnStats.immunes[1] = false;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.GrassSpeed)
-        {
-            pawnStats.terrainTypeMovements[1] *= 2;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.Immune)
-        {
-            for (int i = 1; i < pawnStats.immunes.Length; i++)
-            {
-                pawnStats.immunes[i] = false;
-            }
-        }
-        else if (e.typeOfEffect == Effect.EffectType.SandSpeed)
-        {
-            pawnStats.terrainTypeMovements[2] *= 2;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.Slow)
-        {
-            for (int i = 1; i < pawnStats.terrainTypeMovements.Length; i++)
-            {
-                pawnStats.terrainTypeMovements[i] /= 2;
-            }
-        }
-        else if (e.typeOfEffect == Effect.EffectType.SlowImmune)
-        {
-            pawnStats.immunes[2] = false;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.SnowSpeed)
-        {
-            pawnStats.terrainTypeMovements[3] *= 2;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.Stun)
-        {
-            isAbleToMove = true;
-        }
-        else if (e.typeOfEffect == Effect.EffectType.StunImmune)
-        {
-            pawnStats.immunes[3] = false;
-        }
-    }
-    public void UpdateEffect(Effect e)
-    {
-        DeleteEffect(e);
-        ApplyEffect(e);
-    }*/
 
 }

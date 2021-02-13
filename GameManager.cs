@@ -495,13 +495,13 @@ public class GameManager : MonoBehaviour
         players[turn].skills[slotIndex].TurnOnCooldown();
         UIScript.UpdateSkillSlotAppearance(slotIndex, players[turn].skills[slotIndex].currCooldown);
     }
-    public void SetMusicPlaying(GameObject checkBoxObject)
+    public void SetMusicPlaying(bool b)
     {
-        musicPlayer.SetActive(checkBoxObject.activeSelf);
+        musicPlayer.SetActive(b);
     }
-    public void SetDebugMode(GameObject checkBoxObject)
+    public void SetDebugMode(bool b)
     {
-        debugModeOn = checkBoxObject.activeSelf;
+        debugModeOn = b;
     }
     public Player GetCurrentPlayer()
     {

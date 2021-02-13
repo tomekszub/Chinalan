@@ -5,12 +5,11 @@ public class Pole : MonoBehaviour
 {
     public int ID;
     public bool isSafehouse;
-    //public Pawn stationedPawn;
+    Renderer thisRenderer;
     Color originalColor;
     public enum TerrainType
     {
-        // po dodaniu typu trzba go obsluzyc w switchu w klasie pawn oraz nizej w metodzie ChangeTerrainType
-        //(nie zbyt elegancko lecz aktualnie brak alternatywy)
+        // po dodaniu typu trzba go obsluzyc w switchu w klasie pawn
         Base,
         Grass,
         Sand,
@@ -21,22 +20,15 @@ public class Pole : MonoBehaviour
 	// Use this for initialization
 	void Awake ()
     {
-        
-        //if(isSafehouse) ChangeTerrainType(TerrainType.Base);
-        //else ChangeTerrainType(TerrainType.Grass);
+        thisRenderer = GetComponent<Renderer>();
+        originalColor = thisRenderer.material.color;
     }
-	public void SetStartingValues(int id, bool isSafehouse, TerrainType terrainType)
+	public void SetID(int id)
     {
         ID = id;
-        this.isSafehouse = isSafehouse;
-        ChangeTerrainType(terrainType);
-    }
-	public void ChangeTerrainType(TerrainType type)
-    {
-        terrainType = type;
     }
     public void BackToOriginalColor()
     {
-        GetComponent<Renderer>().material.color = originalColor;
+        thisRenderer.material.color = originalColor;
     }
 }

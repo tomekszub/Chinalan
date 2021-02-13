@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class GM_Skills : MonoBehaviour
@@ -28,28 +27,16 @@ public class GM_Skills : MonoBehaviour
                 if (Input.GetMouseButtonUp(0) && temp)
                 {
                     UseSkill(id);
-                    gm.map.fields[lastFieldID].GetComponent<Pole>().BackToOriginalColor();
-                    for (int i = 1; i < range + 1; i++)
-                    {
-                        gm.map.fields[(lastFieldID + i) % gm.map.fields.Count].GetComponent<Pole>().BackToOriginalColor();
-                        if (lastFieldID - i < 0) gm.map.fields[gm.map.fields.Count + (lastFieldID - i)].GetComponent<Pole>().BackToOriginalColor();
-                        else gm.map.fields[lastFieldID - i].GetComponent<Pole>().BackToOriginalColor();
-                    }
+                    DeselectFields();
                     showRange = false;
                 }
                 if (id != lastFieldID)
                 {
                     //nowe pole zaznaczone
-                    for (int i = 1; i < range + 1; i++)
-                    {
-                        gm.map.fields[(lastFieldID + i) % gm.map.fields.Count].GetComponent<Pole>().BackToOriginalColor();
-                        if (lastFieldID - i < 0) gm.map.fields[gm.map.fields.Count + (lastFieldID - i)].GetComponent<Pole>().BackToOriginalColor();
-                        else gm.map.fields[lastFieldID - i].GetComponent<Pole>().BackToOriginalColor();
-                    }
-                    gm.map.fields[lastFieldID].GetComponent<Pole>().BackToOriginalColor();
+                    DeselectFields();
                     temp = false;
                 }
-                if (id >= gm.map.baseFieldsIndexes[turn] && id <= gm.map.baseFieldsIndexes[turn] + 8 && !temp)
+                if (id >= gm.map.baseFieldsIndexes[turn] && id <= gm.map.baseFieldsIndexes[turn] + gm.map.numberOfFieldsInEveryQuarter- 1 && !temp)
                 {
                     gm.map.fields[id].GetComponent<Renderer>().material.color = Color.black;
                     lastFieldID = id;
@@ -104,6 +91,16 @@ public class GM_Skills : MonoBehaviour
         range = currSkill.boundaryRange;
         skillsIndex = skillIndex;
         showRange = true;
+    }
+    void DeselectFields()
+    {
+        gm.map.fields[lastFieldID].GetComponent<Pole>().BackToOriginalColor();
+        for (int i = 1; i < range + 1; i++)
+        {
+            gm.map.fields[(lastFieldID + i) % gm.map.fields.Count].GetComponent<Pole>().BackToOriginalColor();
+            if (lastFieldID - i < 0) gm.map.fields[gm.map.fields.Count + (lastFieldID - i)].GetComponent<Pole>().BackToOriginalColor();
+            else gm.map.fields[lastFieldID - i].GetComponent<Pole>().BackToOriginalColor();
+        }
     }
     void UseSkill(int index)  // PAMIETAC !!! aby efekty immuna wstawiac insertem(0) a retsze addem przez co immuny beda wyzej w tablicy(liscie)
     {

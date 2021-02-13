@@ -5,6 +5,12 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
+    [System.Serializable]
+    public struct UIStats
+    {
+        public TMP_Text[] stats;
+    }
+
     public bool rollButtonState;
 
     GameManager gameManager;
@@ -23,12 +29,6 @@ public class UIManager : MonoBehaviour
     public GameObject statsPanel;
     [SerializeField]
     Button[] skillButtons;
-    //stats UI
-    [System.Serializable]
-    public class UIStats
-    {
-        public Text[] stats;
-    }
     [SerializeField]
     List<UIStats> UIstats = new List<UIStats>(4);
 
@@ -57,12 +57,12 @@ public class UIManager : MonoBehaviour
         Player player = gameManager.GetCurrentPlayer();
 
         toolTipPanel.SetActive(true);
-        toolTipUI[0].GetComponent<Text>().text = player.skills[skillIndex].name;
-        toolTipUI[1].GetComponent<Text>().text = player.skills[skillIndex].description;
-        toolTipUI[2].GetComponent<Text>().text = "Target: " + player.skills[skillIndex].targetLimit.ToString();
-        toolTipUI[3].GetComponent<Text>().text = "Cooldown: " + player.skills[skillIndex].cooldown.ToString();
-        toolTipUI[4].GetComponent<Text>().text = "Range: " + player.skills[skillIndex].boundaryRange.ToString();
-        toolTipUI[5].GetComponent<Text>().text = "Duration: " + player.skills[skillIndex].duration.ToString();
+        toolTipUI[0].GetComponent<TMP_Text>().text = player.skills[skillIndex].name;
+        toolTipUI[1].GetComponent<TMP_Text>().text = player.skills[skillIndex].description;
+        toolTipUI[2].GetComponent<TMP_Text>().text = "Target: " + player.skills[skillIndex].targetLimit.ToString();
+        toolTipUI[3].GetComponent<TMP_Text>().text = "Cooldown: " + player.skills[skillIndex].cooldown.ToString();
+        toolTipUI[4].GetComponent<TMP_Text>().text = "Range: " + player.skills[skillIndex].boundaryRange.ToString();
+        toolTipUI[5].GetComponent<TMP_Text>().text = "Duration: " + player.skills[skillIndex].duration.ToString();
     }
     public void HideToolTip()
     {
@@ -104,12 +104,12 @@ public class UIManager : MonoBehaviour
         if(cooldown > 0)
         {
             skillButtons[slotIndex].interactable = false;
-            skillButtons[slotIndex].GetComponentInChildren<Text>().text = cooldown.ToString();
+            skillButtons[slotIndex].GetComponentInChildren<TMP_Text>().text = cooldown.ToString();
         }
         else
         {
             skillButtons[slotIndex].interactable = true;
-            skillButtons[slotIndex].GetComponentInChildren<Text>().text = "";
+            skillButtons[slotIndex].GetComponentInChildren<TMP_Text>().text = "";
         }
     }
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -95,21 +94,15 @@ public class MapGenerator : MonoBehaviour
             go.transform.Rotate(0,90,0);
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            fields[baseFieldsIndexes[i]].GetComponent<Pole>().ChangeTerrainType(Pole.TerrainType.Grass);
-        }
-
-        return new Map(fields, baseFieldsIndexes, safeFields.ToArray(), safeEntranceFields.ToArray(), 4);
+        return new Map(fields, baseFieldsIndexes, safeFields.ToArray(), safeEntranceFields.ToArray(), 4, numberOfFieldsInEveryQuarter);
     }
     void AddNewField(Vector3 pos, Pole.TerrainType? terrainType = null)
     {
         if (terrainType == null)
             terrainType = (Pole.TerrainType)Random.Range(1, Pole.terrainTypeCount);
-        bool isSafehouse = (terrainType == Pole.TerrainType.Base);
         GameObject field = Instantiate(fieldPrefabs[(int)terrainType].gameObject, pos, Quaternion.identity, origin);
-        field.GetComponent<Pole>().SetStartingValues(fields.Count, isSafehouse, (Pole.TerrainType)terrainType);
-        if (!isSafehouse)
+        field.GetComponent<Pole>().SetID(fields.Count);
+        if (terrainType != Pole.TerrainType.Base)
             fields.Add(field);
         else
             safeFields.Add(field);
@@ -185,7 +178,6 @@ public class MapGenerator : MonoBehaviour
         }
         return lastValidPos;
     }
-
     public void ClearOriginOfExistingMap()
     {
         foreach (Transform child in origin)
@@ -193,7 +185,6 @@ public class MapGenerator : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
-
     void FillOtherFieldArrays()
     {
         Vector3 pos;
@@ -212,7 +203,6 @@ public class MapGenerator : MonoBehaviour
 
         // we have to swap safeEntrance and safeFields belongign to 1 and 3 player
         //because we were going the other way around when assigning them (see -----^) 
-
         int temp = safeEntranceFields[1];
         safeEntranceFields[1] = safeEntranceFields[3];
         safeEntranceFields[3] = temp;
