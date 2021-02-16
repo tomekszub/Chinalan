@@ -53,28 +53,27 @@ public class MapGenerator : MonoBehaviour
             int missingBlocks = 5 - verticalLength;
             verticalAdditionalBlocks = 1 + 2 * missingBlocks;
         }
-
+        if (horizontalLength < 5)
+        {
+            int missingBlocks = 5 - horizontalLength;
+            horizontalAdditionalBlocks = 1 + 2 * (missingBlocks - 1);
+        }
         // determine if baseFields will be adjacent to normal fields
         // if so then we need to add additional separation
         // we just need to check if the second to last field will be adjacent to first baseField
         if (fields[fields.Count - 3].transform.position.AreFieldsTouching(fields[fields.Count - 1].transform.position.CopyAndCreateNewVector(1, 0, 0)))
             verticalAdditionalBlocks += 2;
         // same here but we campare second field to first baseField
-        if(fields[1].transform.position.AreFieldsTouching(fields[0].transform.position.CopyAndCreateNewVector(1, 0, 1)))
+        if (fields[1].transform.position.AreFieldsTouching(fields[0].transform.position.CopyAndCreateNewVector(1, 0, 1)))
             horizontalAdditionalBlocks += 2;
 
-        if (horizontalLength < 5)
-        {
-            int missingBlocks = 5 - horizontalLength;
-            horizontalAdditionalBlocks = 1 + 2 * (missingBlocks-1);
-        }
+        print(verticalAdditionalBlocks + " " + horizontalAdditionalBlocks);
 
         for (int i = 1; i < verticalAdditionalBlocks; i++)
         {
             lastValidPos = lastValidPos.CopyAndCreateNewVector(0, 0, 1);
             AddNewField(lastValidPos);
         }
-
 
         lastValidPos = AddNewMapQuarterAndReturnLastPos(lastValidPos, true, 2, true);
 
@@ -191,9 +190,9 @@ public class MapGenerator : MonoBehaviour
         int[] offsets = { 1,0,-1,0};
         for (int i = 4; i > 0; i--)
         {
-            int baseEntranceFieldIndex = numberOfFieldsInEveryQuarter * i + (int)(verticalAdditionalBlocks * (0.5f * i)) + (int)(horizontalAdditionalBlocks * (0.5f * (i - 1)));
-            pos = fields[baseEntranceFieldIndex].transform.position;
-            safeEntranceFields.Add(baseEntranceFieldIndex);
+            int safeEntranceFieldIndex = numberOfFieldsInEveryQuarter * i + (int)(verticalAdditionalBlocks * (0.5f * i)) + (int)(horizontalAdditionalBlocks * (0.5f * (i - 1)));
+            pos = fields[safeEntranceFieldIndex].transform.position;
+            safeEntranceFields.Add(safeEntranceFieldIndex);
             for (int j = 0; j < 4; j++)
             {
                 pos = pos.CopyAndCreateNewVector(offsets[i - 1], 0, offsets[4 - i]);
@@ -214,20 +213,29 @@ public class MapGenerator : MonoBehaviour
             safeFields[i + 8] = tempF;
         }
 
+        SetBaseFieldsIndexes();
+    }
+    void SetBaseFieldsIndexes()
+    {
         baseFieldsIndexes[0] = 0;
-        baseFieldsIndexes[2] = 2 * numberOfFieldsInEveryQuarter + verticalAdditionalBlocks + horizontalAdditionalBlocks;
-        if (horizontalAdditionalBlocks <= 1)
-        {
-            baseFieldsIndexes[0]++;
-            baseFieldsIndexes[2]++;
-        }
-
         baseFieldsIndexes[1] = numberOfFieldsInEveryQuarter + verticalAdditionalBlocks;
+        baseFieldsIndexes[2] = 2 * numberOfFieldsInEveryQuarter + verticalAdditionalBlocks + horizontalAdditionalBlocks;
         baseFieldsIndexes[3] = 3 * numberOfFieldsInEveryQuarter + horizontalAdditionalBlocks + 2 * verticalAdditionalBlocks;
-        if (verticalAdditionalBlocks <= 1)
+
+        int difference = verticalAdditionalBlocks - horizontalAdditionalBlocks;
+        
+        if (difference < 0)
         {
-            baseFieldsIndexes[1]++;
-            baseFieldsIndexes[3]++;
+            difference = difference / 2;
+            // difference is negative
+            baseFieldsIndexes[0] = fields.Count + difference;
+            baseFieldsIndexes[2] += difference;
+        }
+        else if (difference > 0)
+        {
+            difference = difference / 2;
+            baseFieldsIndexes[1] -= difference;
+            baseFieldsIndexes[3] -= difference;
         }
     }
 
