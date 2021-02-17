@@ -11,6 +11,8 @@ public class MapGenerator : MonoBehaviour
     Transform origin;
     [SerializeField]
     Pole[] fieldPrefabs;
+    [SerializeField]
+    PointOfInterest[] pointsOfInterestfieldPrefabs;
 
     List<GameObject> safeFields;
     List<int> safeEntranceFields;
@@ -67,8 +69,6 @@ public class MapGenerator : MonoBehaviour
         if (fields[1].transform.position.AreFieldsTouching(fields[0].transform.position.CopyAndCreateNewVector(1, 0, 1)))
             horizontalAdditionalBlocks += 2;
 
-        print(verticalAdditionalBlocks + " " + horizontalAdditionalBlocks);
-
         for (int i = 1; i < verticalAdditionalBlocks; i++)
         {
             lastValidPos = lastValidPos.CopyAndCreateNewVector(0, 0, 1);
@@ -93,18 +93,38 @@ public class MapGenerator : MonoBehaviour
             go.transform.Rotate(0,90,0);
         }
 
+        GeneratePointsOfInterest();
+
         return new Map(fields, baseFieldsIndexes, safeFields.ToArray(), safeEntranceFields.ToArray(), 4, numberOfFieldsInEveryQuarter);
     }
-    void AddNewField(Vector3 pos, Pole.TerrainType? terrainType = null)
+    void AddNewField(Vector3 pos, Pole.TerrainType? terrainType = null, Quaternion rot = default)
     {
+        GameObject prefab;
+
         if (terrainType == null)
-            terrainType = (Pole.TerrainType)Random.Range(1, Pole.terrainTypeCount);
-        GameObject field = Instantiate(fieldPrefabs[(int)terrainType].gameObject, pos, Quaternion.identity, origin);
-        field.GetComponent<Pole>().SetID(fields.Count);
+            prefab = fieldPrefabs[Random.Range(1, Pole.terrainTypeCount)].gameObject;
+        else
+            prefab = fieldPrefabs[(int)terrainType].gameObject;
+
+        GameObject field = Instantiate(prefab, pos, rot, origin);
+        field.GetComponent<Pole>().ID = fields.Count;
+
         if (terrainType != Pole.TerrainType.Base)
             fields.Add(field);
         else
             safeFields.Add(field);
+    }
+    void AddNewPointOfInterest(Vector3 pos, int poiAdjacentFieldIndex, PointOfInterest.PointOfInterestType? poiType = null, Quaternion rot = default)
+    {
+        GameObject prefab;
+        if (poiType == null)
+            prefab = pointsOfInterestfieldPrefabs[Random.Range(0, PointOfInterest.pointOfInterestTypeCount)].gameObject;
+        else
+            prefab = pointsOfInterestfieldPrefabs[(int)poiType].gameObject;
+
+        GameObject poi = Instantiate(prefab, pos, rot, origin);
+
+        fields[poiAdjacentFieldIndex].GetComponent<Pole>().adjacentPointOfInterest = poi.GetComponent<PointOfInterest>();
     }
     Vector3? GenerateNextPosition(Vector3 previous)
     {
@@ -130,8 +150,10 @@ public class MapGenerator : MonoBehaviour
         for (int i = avaiablePositions.Count-1; i >= 0; i--)
         {
             // fields.Count - 1 because we want to exclude last field (its adjacent to all avaiable field positions) 
-            for (int j = 0; j < fields.Count-1; j++)
+            for (int j = 0; j < fields.Count; j++)
             {
+                if (fields[j].transform.position == startingPosition)
+                    continue;
                 if (avaiablePositions[i].AreFieldsTouching(fields[j].transform.position))
                 {
                     avaiablePositions.RemoveAt(i);
@@ -238,5 +260,61 @@ public class MapGenerator : MonoBehaviour
             baseFieldsIndexes[3] -= difference;
         }
     }
-
+    void GeneratePointsOfInterest()
+    {
+        HashSet<int> bannedFieldsIndexes = new HashSet<int>();
+        foreach (int i in baseFieldsIndexes)
+        {
+            bannedFieldsIndexes.Add(i);
+        }
+        foreach (int i in safeEntranceFields)
+        {
+            bannedFieldsIndexes.Add(i);
+            if (i >= fields.Count - 1)
+                bannedFieldsIndexes.Add(0);
+            else
+                bannedFieldsIndexes.Add(i + 1);
+            if (i <= 0)
+                bannedFieldsIndexes.Add(fields.Count-1);
+            else
+                bannedFieldsIndexes.Add(i - 1);
+        }
+        Vector3[] avaiablePos;
+        for (int i = 0; i < fields.Count; i++)
+        {
+            if(!bannedFieldsIndexes.Contains(i))
+            {
+                avaiablePos = GetAvaiablePosition(fields[i].transform.position);
+                if (avaiablePos.Length != 0)
+                    avaiablePos = ExcludeFieldsTouchingSafeFields(avaiablePos);
+                if (avaiablePos.Length != 0)
+                {
+                    Vector3 v = avaiablePos[Random.Range(0, avaiablePos.Length)];
+                    Vector3 temp2 = v - fields[i].transform.position;
+                    Quaternion rot = Quaternion.LookRotation(new Vector3(temp2.x, 0, temp2.z));
+                    AddNewPointOfInterest(v, i, null, rot);
+                }
+            }
+        }
+    }
+    Vector3[] ExcludeFieldsTouchingSafeFields(Vector3[] avaiablePositions)
+    {
+        List<Vector3> newAvaiablePos = new List<Vector3>();
+        bool areTouching;
+        for (int x = avaiablePositions.Length - 1; x >= 0; x--)
+        {
+            areTouching = false;
+            for (int j = 0; j < safeFields.Count; j++)
+            {
+                if (avaiablePositions[x].AreFieldsTouching(safeFields[j].transform.position))
+                {
+                    areTouching = true;
+                    break; ;
+                }
+            }
+            if(!areTouching)
+                newAvaiablePos.Add(avaiablePositions[x]);
+        }
+        return newAvaiablePos.ToArray();
+    }
 }

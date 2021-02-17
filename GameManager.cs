@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public int CurrentTurn => turn;
     public GameObject[] cameras;
     public Map map;
     public Pawn pawnPrefab;
@@ -27,11 +28,13 @@ public class GameManager : MonoBehaviour
     bool isTimeToChoose = false;
     // array of ids which are added to newly created pawns to distinguish them
     int[] ids = { 0, 0, 0, 0 };
+    public delegate void TurnHandler();
+    public event TurnHandler OnNextTurn;
+
     GM_Skills gmSkills;
     Sounds soundsScript;
     UIManager UIScript;
     MapGenerator mapGenerator;
-    
 
     void Awake ()
     {
@@ -95,7 +98,8 @@ public class GameManager : MonoBehaviour
         }
         if(destinationFlag.activeSelf)
         {
-            if (Input.GetMouseButtonUp(1)) destinationFlag.SetActive(false);
+            if (Input.GetMouseButtonUp(1)) 
+                destinationFlag.SetActive(false);
         }
         if (finishedMoving)
         {
@@ -122,7 +126,8 @@ public class GameManager : MonoBehaviour
                     isTimeToChoose = false;
                     ObjectsHasBeenClicked(go);
                 }
-                if(rightMB) ShowDestinationFlag(go);
+                if(rightMB) 
+                    ShowDestinationFlag(go);
             }
         }
     }
@@ -136,7 +141,8 @@ public class GameManager : MonoBehaviour
                 return;
             rollResult = (int)x;
         }
-        else rollResult = Random.Range(1, 7);
+        else 
+            rollResult = Random.Range(1, 7);
         UIScript.SetRollButton(false);
         playerStats[turn].AddRolledNumber(rollResult);
         currRollValue = rollResult;
@@ -155,8 +161,8 @@ public class GameManager : MonoBehaviour
                     continue;
                 if ((savedMoves = GetMovesCountIfMoveIsPossible(pawn, out _)) != null)
                 {
+                    pawn.ToggleSelectionBeam(true);
                     allCannotMove = false;
-                    break;
                 }
             }
         }
@@ -348,8 +354,8 @@ public class GameManager : MonoBehaviour
             if (pawns[i].CurrFieldIndex == positionIndex && !pawns[i].IsSafe)
             {
                 Destroy(pawns[i].gameObject);
-                playerStats[turn].SuccesfullKill();
-                playerStats[pawns[i].Owner].PawnDestroyed();
+                playerStats[turn].Kills++;
+                playerStats[pawns[i].Owner].Deaths++;
                 players[pawns[i].Owner].pawnsInGame -= 1;
                 pawns.RemoveAt(i);
                 soundsScript.PlaySound(soundName);
@@ -404,8 +410,11 @@ public class GameManager : MonoBehaviour
             {
                 DestroyPawnIfOnField(map.baseFieldsIndexes[turn], "capturingSound");
                 SpawnPawn();
-                if (movesInTurn < 3) UIScript.SetRollButton(true);
-                else EndOfTurn();
+                DisableAllSelectionBeams();
+                if (movesInTurn < 3) 
+                    UIScript.SetRollButton(true);
+                else 
+                    EndOfTurn();
             }
             else
             {
@@ -414,7 +423,7 @@ public class GameManager : MonoBehaviour
             }
             return;
         }
-        if(!rolledSix && isBaseObject)
+        else if(!rolledSix && isBaseObject)
         {
             UIScript.SetNotificationText("You need to roll 6 to send characters from your base.");
             isTimeToChoose = true;
@@ -433,6 +442,7 @@ public class GameManager : MonoBehaviour
             {
                 if(pawns[i].name == selectedObject.name)
                 {
+                    DisableAllSelectionBeams();
                     StartCoroutine(Move(pawns[i], (int)moves));
                     break;
                 }
@@ -485,6 +495,13 @@ public class GameManager : MonoBehaviour
         if (!isCameraSet)
             cameras[0].SetActive(true);
     }
+    void DisableAllSelectionBeams()
+    {
+        foreach (Pawn pawn in pawns)
+        {
+            pawn.ToggleSelectionBeam(false);
+        }
+    }
     // public functions
     public void UseSkill(int slotIndex)
     {
@@ -517,6 +534,8 @@ public class GameManager : MonoBehaviour
     }
     public void NextTurn()
     {
+        OnNextTurn();
+        HandlePointsOfInterest();
         UIScript.SetDiceText("");
         UIScript.SetNextTurnButton(false);
         UpdateSkillsCooldowns();
@@ -525,10 +544,22 @@ public class GameManager : MonoBehaviour
         if (turn == 4)
             turn = 0;
         UIScript.UpdateSkillsIcons(players[turn].skills);
-        UIScript.SetPlayerNameLabel(playerStats[turn].name);
+        UIScript.SetPlayerNameLabel(playerStats[turn].Name);
         movesInTurn = 0;
         finishedMoving = true;
     }
+
+    private void HandlePointsOfInterest()
+    {
+        foreach (Pawn p in pawns)
+        {
+            if(!p.IsSafe)
+            {
+                map.fields[p.CurrFieldIndex].GetComponent<Pole>().adjacentPointOfInterest?.GetStayingBonus(p.Owner);
+            }
+        }
+    }
+
     public void RollButtonPressed()
     {
         Roll(null);
@@ -539,7 +570,7 @@ public class GameManager : MonoBehaviour
         playerStats.Clear();
         for (int i = 4; i < 8; i++)
         {
-            playerStats.Add(new Stats(settings[i], 0, 0, 0, 0, 0, 0, 0, 0));
+            playerStats.Add(new Stats(settings[i], 0, 0, 0, 0, 0, 0, 0, 0, 0));
         }
         UIScript.UpdateStatsPanel();
         // reseting auxilary variables
@@ -553,7 +584,7 @@ public class GameManager : MonoBehaviour
         finishedMoving = true;
         currentlyControlledPawn = null;
         ClearAllPawns();
-        UIScript.ResetGameUI(playerStats[0].name);
+        UIScript.ResetGameUI(playerStats[0].Name);
         // clearing existing playersStats then adding new ones (maybe i should just overwrite existing data?)
         players.Clear();
         for (int i = 0; i < 4; i++)

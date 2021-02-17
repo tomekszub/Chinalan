@@ -119,15 +119,16 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < UIstats.Count; i++)
         {
             Stats stats = gameManager.playerStats[i];
-            UIstats[i].stats[0].text = stats.name;
-            UIstats[i].stats[1].text = stats.kills.ToString();
-            UIstats[i].stats[2].text = stats.deaths.ToString();
-            UIstats[i].stats[3].text = stats.onesRolled.ToString();
-            UIstats[i].stats[4].text = stats.twosRolled.ToString();
-            UIstats[i].stats[5].text = stats.threesRolled.ToString();
-            UIstats[i].stats[6].text = stats.foursRolled.ToString();
-            UIstats[i].stats[7].text = stats.fivesRolled.ToString();
-            UIstats[i].stats[8].text = stats.sixsRolled.ToString();
+            UIstats[i].stats[0].text = stats.Name;
+            UIstats[i].stats[1].text = stats.Kills.ToString();
+            UIstats[i].stats[2].text = stats.Deaths.ToString();
+            UIstats[i].stats[3].text = stats.OnesRolled.ToString();
+            UIstats[i].stats[4].text = stats.TwosRolled.ToString();
+            UIstats[i].stats[5].text = stats.ThreesRolled.ToString();
+            UIstats[i].stats[6].text = stats.FoursRolled.ToString();
+            UIstats[i].stats[7].text = stats.FivesRolled.ToString();
+            UIstats[i].stats[8].text = stats.SixsRolled.ToString();
+            UIstats[i].stats[9].text = stats.Gold.ToString();
         }
     }
 

@@ -3,11 +3,12 @@ using UnityEngine;
 
 public class Pawn : MonoBehaviour
 {
+    [SerializeField]
+    GameObject selectionBeamGameObject;
     private int owner;
     private int currFieldIndex;
     private bool isSafe = false;
     public List<Effect> effects = new List<Effect>();
-    //public bool isAbleToMove = true;
     Vector3 newPosition;
     private float startTime;
     float speed = 2.5F;
@@ -51,7 +52,10 @@ public class Pawn : MonoBehaviour
         // Calculate the journey length.
         journeyLength = Vector3.Distance(transform.position, newPosition);
     }
-
+    public void ToggleSelectionBeam(bool toggle)
+    {
+        selectionBeamGameObject.SetActive(toggle);
+    }
     public bool CheckHasEffect(Effect.EffectType effectType)
     {
         foreach (var effect in effects)
