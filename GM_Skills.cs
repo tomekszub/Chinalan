@@ -103,14 +103,14 @@ public class GM_Skills : MonoBehaviour
         range = currSkill.boundaryRange;
         skillsIndex = skillIndex;
         lastFieldID = -1;
-        UIScript.ToggleSkillHighlight(skillIndex, true);
+        UIScript.SetSkillHighlight(skillIndex, true);
         showRange = true;
     }
     void CancelShowingRange()
     {
         pool.ReclaimAllHighlightObjects();
         showRange = false;
-        UIScript.ToggleSkillHighlight(skillsIndex, false);
+        UIScript.SetSkillHighlight(skillsIndex, false);
         isCleaningNecessary = false;
     }
     void UseSkill(int index)  // PAMIETAC !!! aby efekty immuna wstawiac insertem(0) a retsze addem przez co immuny beda wyzej w tablicy(liscie)

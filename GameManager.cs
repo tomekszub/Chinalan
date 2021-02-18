@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public Material[] playerColors;
     [HideInInspector]
     public List<Pawn> pawns = new List<Pawn>();
+    public delegate void TurnHandler();
+    public event TurnHandler OnNextTurn;
 
     [SerializeField]
     GameObject musicPlayer;
@@ -28,14 +30,12 @@ public class GameManager : MonoBehaviour
     bool isTimeToChoose = false;
     // array of ids which are added to newly created pawns to distinguish them
     int[] ids = { 0, 0, 0, 0 };
-    public delegate void TurnHandler();
-    public event TurnHandler OnNextTurn;
+    float skiptTurnCost = 5;
 
     GM_Skills gmSkills;
     Sounds soundsScript;
     UIManager UIScript;
     MapGenerator mapGenerator;
-
     void Awake ()
     {
         UIScript = GetComponent<UIManager>();
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
                 GameObject go = hit.transform.gameObject;
                 if (leftMB)
                 {
-                    UIScript.SetNotificationText("");
+                    UIScript.SetNotificationText();
                     isTimeToChoose = false;
                     ObjectsHasBeenClicked(go);
                 }
@@ -172,8 +172,10 @@ public class GameManager : MonoBehaviour
             {
                 DestroyPawnIfOnField(map.baseFieldsIndexes[turn], "capturingSound");
                 SpawnPawn();
-                if (movesInTurn < 3) UIScript.SetRollButton(true);
-                else EndOfTurn();
+                if (movesInTurn < 3) 
+                    UIScript.SetRollButton(true);
+                else 
+                    EndOfTurn();
             }
             else
             {
@@ -186,15 +188,26 @@ public class GameManager : MonoBehaviour
         {
             if (rollResult != 6 && players[turn].pawnsInGame == 1)
             {
-                Pawn p = GetFirstPawnFromPawns(turn);
-                StartCoroutine(Move(p, (int)savedMoves));
+                if (ShowIfCanSkipTurn())
+                {
+                    UIScript.SetNotificationText("Choose which pawn of yours you want to move. You can also skip this turn.");
+                    isTimeToChoose = true; ;
+                }
+                else
+                {
+                    Pawn p = GetFirstPawnFromPawns(turn);
+                    StartCoroutine(Move(p, (int)savedMoves));
+                }
             }
             else
             {
+                string skipTurnText = "";
+                if (ShowIfCanSkipTurn())
+                    skipTurnText = " You can also skip this turn.";
                 if (rollResult != 6)
-                    UIScript.SetNotificationText("Choose which pawn of yours you want to move.");
+                    UIScript.SetNotificationText("Choose which pawn of yours you want to move." + skipTurnText);
                 else
-                    UIScript.SetNotificationText("Click on your pawn or base to create new pawn.");
+                    UIScript.SetNotificationText("Click on your pawn or base to create new pawn." + skipTurnText);
                 isTimeToChoose = true;
                 return;
             }
@@ -253,7 +266,7 @@ public class GameManager : MonoBehaviour
     }
     void EndOfTurn()
     {
-        UIScript.SetNotificationText("");
+        UIScript.SetNotificationText();
         UIScript.SetNextTurnButton(true);
     }
     void UpdateEffectsCooldowns()
@@ -408,6 +421,7 @@ public class GameManager : MonoBehaviour
         {
             if (CanSpawn())
             {
+                UIScript.HideSkipTurnPanel();
                 DestroyPawnIfOnField(map.baseFieldsIndexes[turn], "capturingSound");
                 SpawnPawn();
                 DisableAllSelectionBeams();
@@ -443,6 +457,7 @@ public class GameManager : MonoBehaviour
                 if(pawns[i].name == selectedObject.name)
                 {
                     DisableAllSelectionBeams();
+                    UIScript.HideSkipTurnPanel();
                     StartCoroutine(Move(pawns[i], (int)moves));
                     break;
                 }
@@ -465,6 +480,7 @@ public class GameManager : MonoBehaviour
         ids[turn] += 1;
         pawns.Add(pawn);
         players[turn].pawnsInGame += 1;
+        UIScript.UpdatePawnsInGameText(players[turn].pawnsInGame);
     }
     bool IsFriendlyOrImmunePawnInField(int fieldIndex, bool isInSafehouse)
     {
@@ -502,6 +518,15 @@ public class GameManager : MonoBehaviour
             pawn.ToggleSelectionBeam(false);
         }
     }
+    bool ShowIfCanSkipTurn()
+    {
+        if (playerStats[turn].Gold >= players[turn].pawnsInGame * skiptTurnCost)
+        {
+            UIScript.ShowSkipTurnPanel(players[turn].pawnsInGame * skiptTurnCost);
+            return true;
+        }
+        return false;
+    }
     // public functions
     public void UseSkill(int slotIndex)
     {
@@ -534,7 +559,8 @@ public class GameManager : MonoBehaviour
     }
     public void NextTurn()
     {
-        OnNextTurn();
+        if(OnNextTurn != null)
+            OnNextTurn();
         HandlePointsOfInterest();
         UIScript.SetDiceText("");
         UIScript.SetNextTurnButton(false);
@@ -546,9 +572,18 @@ public class GameManager : MonoBehaviour
         UIScript.UpdateSkillsIcons(players[turn].skills);
         UIScript.SetPlayerNameLabel(playerStats[turn].Name);
         movesInTurn = 0;
+        UIScript.UpdateCoinsText(playerStats[turn].Gold);
+        UIScript.UpdatePawnsInGameText(players[turn].pawnsInGame);
+        DisableAllSelectionBeams();
         finishedMoving = true;
     }
-
+    public void SkipTurn()
+    {
+        UIScript.HideSkipTurnPanel();
+        UIScript.SetNotificationText();
+        playerStats[turn].Gold -= players[turn].pawnsInGame * skiptTurnCost;
+        NextTurn();
+    }
     private void HandlePointsOfInterest()
     {
         foreach (Pawn p in pawns)
@@ -570,7 +605,7 @@ public class GameManager : MonoBehaviour
         playerStats.Clear();
         for (int i = 4; i < 8; i++)
         {
-            playerStats.Add(new Stats(settings[i], 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            playerStats.Add(new Stats(settings[i],i-4, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         }
         UIScript.UpdateStatsPanel();
         // reseting auxilary variables

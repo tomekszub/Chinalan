@@ -11,34 +11,52 @@ public class UIManager : MonoBehaviour
         public TMP_Text[] stats;
     }
 
-    public bool rollButtonState;
-
     GameManager gameManager;
+
     [SerializeField]
     GameObject toolTipPanel;
     [SerializeField]
     GameObject[] toolTipUI;
-
-    // "wskazniki" do przycisku, tektu wyswietlajacego liczbe oczek, notyfikacje i panel ustawien
-    public Button buttonRoll;
-    public Button buttonNextTurn;
-    public TMP_Text diceText;
-    public TMP_Text notificationText;
-    public TMP_Text playerNameText;
-    public GameObject optionsPanel;
-    public GameObject statsPanel;
+    [SerializeField]
+    Button buttonRoll;
+    [SerializeField]
+    Button buttonNextTurn;
+    [SerializeField]
+    TMP_Text diceText;
+    [SerializeField]
+    TMP_Text notificationText;
+    [SerializeField]
+    TMP_Text playerNameText;
+    [SerializeField]
+    GameObject optionsPanel;
+    [SerializeField]
+    GameObject statsPanel;
     [SerializeField]
     Button[] skillButtons;
     [SerializeField]
     GameObject[] skillFrames;
     [SerializeField]
     List<UIStats> UIstats = new List<UIStats>(4);
-
+    [SerializeField]
+    TMP_Text pawnsInGameText;
+    [SerializeField]
+    TMP_Text coinsText;
+    [SerializeField]
+    GameObject skipTurnPanel;
+    [SerializeField]
+    TMP_Text skipTurnCostText;
+    private void OnEnable()
+    {
+        Stats.OnGoldChanged += UpdateCoinsTextThroughEvent;
+    }
+    private void OnDisable()
+    {
+        Stats.OnGoldChanged -= UpdateCoinsTextThroughEvent;
+    }
     private void Awake()
     {
         gameManager = GetComponent<GameManager>();
     }
-
     private void Update()
     {
         if (Input.GetKeyUp(KeyCode.Escape))
@@ -54,6 +72,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    void UpdateCoinsTextThroughEvent(int player)
+    {
+        if (player == gameManager.CurrentTurn)
+            coinsText.text = gameManager.playerStats[player].Gold.ToString();
+    }
     public void FillToolTip(int skillIndex)
     {
         Player player = gameManager.GetCurrentPlayer();
@@ -70,37 +93,39 @@ public class UIManager : MonoBehaviour
     {
         toolTipPanel.SetActive(false);
     }
-
+    public void ShowSkipTurnPanel(float skipTurnCost)
+    {
+        skipTurnPanel.SetActive(true);
+        skipTurnCostText.text = skipTurnCost.ToString();
+    }
+    public void HideSkipTurnPanel()
+    {
+        skipTurnPanel.SetActive(false);
+    }
     public void SetRollButton(bool interactable)
     {
-        rollButtonState = buttonRoll.interactable = interactable;
+        buttonRoll.interactable = interactable;
     }
-
     public void SetDiceText(string text)
     {
         diceText.text = text;
     }
-
-    public void SetNotificationText(string text)
+    public void SetNotificationText(string text = "")
     {
         notificationText.text = text;
     }
-
     public bool IsRollButtonInteractable()
     {
         return buttonRoll.interactable;
     }
-
     public void SetNextTurnButton(bool interactable)
     {
         buttonNextTurn.interactable = interactable;
     }
-
     public void SetPlayerNameLabel(string name)
     {
         playerNameText.text = name;
     }
-
     public void ResetGameUI(string firstPlayerName)
     {
         diceText.text = "";
@@ -110,7 +135,6 @@ public class UIManager : MonoBehaviour
         buttonNextTurn.interactable = false;
         optionsPanel.SetActive(false);
     }
-
     public void UpdateStatsPanel()
     {
         if (gameManager.playerStats == null || gameManager.playerStats.Count == 0)
@@ -131,7 +155,6 @@ public class UIManager : MonoBehaviour
             UIstats[i].stats[9].text = stats.Gold.ToString();
         }
     }
-
     public void UpdateSkillsIcons(List<Skill> skills)
     {
         for (int i = 0; i < skillButtons.Length; i++)
@@ -153,8 +176,16 @@ public class UIManager : MonoBehaviour
             skillButtons[slotIndex].GetComponentInChildren<TMP_Text>().text = "";
         }
     }
-    public void ToggleSkillHighlight(int index, bool toggle)
+    public void SetSkillHighlight(int index, bool toggle)
     {
         skillFrames[index].SetActive(toggle);
+    }
+    public void UpdateCoinsText(float coins)
+    {
+        coinsText.text = coins.ToString();
+    }
+    public void UpdatePawnsInGameText(float pawns)
+    {
+        pawnsInGameText.text = "Pawns in game: " + pawns.ToString();
     }
 }
