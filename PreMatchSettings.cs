@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 public class PreMatchSettings : MonoBehaviour
 {
     public TMPro.TMP_Dropdown[] playerDropdowns;
@@ -23,8 +22,7 @@ public class PreMatchSettings : MonoBehaviour
         }
         for (int i = 4; i < 8; i++)
         {
-            print("" + playerInputs[i - 4].text + "");
-            temp[i] = playerInputs[i - 4].text == "" ? ("Player " + (i-3)) : playerInputs[i - 4].text;
+            temp[i] = playerInputs[i - 4].text.Length <= 1 ? ("Player " + (i-3)) : playerInputs[i - 4].text;
         }
         gm.StartGame(temp);
     }
