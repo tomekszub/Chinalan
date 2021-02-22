@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExitGame : MonoBehaviour {
+public class ExitGame : MonoBehaviour 
+{
 
 	public void QuitGame()
     {

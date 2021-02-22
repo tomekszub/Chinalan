@@ -3,11 +3,9 @@ public class PreMatchSettings : MonoBehaviour
 {
     public TMPro.TMP_Dropdown[] playerDropdowns;
     public TMPro.TMP_Text[] playerInputs;
-    GameManager gm;
 	// Use this for initialization
 	void Start ()
     {
-        gm = GetComponent<GameManager>();
         foreach (TMPro.TMP_Dropdown d in playerDropdowns)
         {
             d.AddOptions(FractionDB.GetFractionsNames());
@@ -24,6 +22,7 @@ public class PreMatchSettings : MonoBehaviour
         {
             temp[i] = playerInputs[i - 4].text.Length <= 1 ? ("Player " + (i-3)) : playerInputs[i - 4].text;
         }
-        gm.StartGame(temp);
+        
+        GetComponent<GameManager>().StartGame(temp);
     }
 }

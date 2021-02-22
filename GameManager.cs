@@ -1,20 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GameManager : MonoBehaviour
 {
     public int CurrentTurn => turn;
-    public GameObject[] cameras;
+    public bool GameInProgress { get => gameInProgress; set => gameInProgress = value; }
     public Map map;
-    public Pawn pawnPrefab;
     public List<Stats> playerStats = new List<Stats>();
-    public Material[] playerColors;
     [HideInInspector]
     public List<Pawn> pawns = new List<Pawn>();
-    public delegate void TurnHandler();
-    public event TurnHandler OnNextTurn;
+    public Action OnNextTurn;
+    
 
+    [SerializeField]
+    GameObject[] cameras;
+    [SerializeField]
+    Pawn pawnPrefab;
+    [SerializeField]
+    Material[] playerColors;
     [SerializeField]
     GameObject musicPlayer;
     [SerializeField]
@@ -27,7 +32,9 @@ public class GameManager : MonoBehaviour
     List<Player> players = new List<Player>();
     bool finishedMoving = true;
     bool debugModeOn = false;
+    bool tutorialEnabled = true;
     bool isTimeToChoose = false;
+    bool gameInProgress = false;
     // array of ids which are added to newly created pawns to distinguish them
     int[] ids = { 0, 0, 0, 0 };
     float skiptTurnCost = 5;
@@ -142,7 +149,7 @@ public class GameManager : MonoBehaviour
             rollResult = (int)x;
         }
         else 
-            rollResult = Random.Range(1, 7);
+            rollResult = UnityEngine.Random.Range(1, 7);
         UIScript.SetRollButton(false);
         playerStats[turn].AddRolledNumber(rollResult);
         currRollValue = rollResult;
@@ -507,7 +514,6 @@ public class GameManager : MonoBehaviour
                 cameras[i].SetActive(true);
             }
         }
-        // jesli id zostalo zle podane to domyslan kamera to kamera 0
         if (!isCameraSet)
             cameras[0].SetActive(true);
     }
@@ -544,6 +550,10 @@ public class GameManager : MonoBehaviour
     public void SetDebugMode(bool b)
     {
         debugModeOn = b;
+    }
+    public void SetTutorial(bool b)
+    {
+        tutorialEnabled = b;
     }
     public Player GetCurrentPlayer()
     {
@@ -594,13 +604,14 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
     public void RollButtonPressed()
     {
         Roll(null);
     }
     public void StartGame(string[] settings)  // array: [index] 0-3 - fraction name 4-7 - players names
     {
+        if(tutorialEnabled)
+            GetComponent<Tutorial>().tutorialCanvas.SetActive(true);
         // clearing existing playersStats then adding new ones (maybe i should just overwrite existing data?)
         playerStats.Clear();
         for (int i = 4; i < 8; i++)
@@ -631,6 +642,7 @@ public class GameManager : MonoBehaviour
         }
         UIScript.UpdateSkillsIcons(players[0].skills);
         map = mapGenerator.GenerateMap();
+        GameInProgress = true;
     }
     // 792 lines
 }

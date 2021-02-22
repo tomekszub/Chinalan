@@ -59,15 +59,19 @@ public class UIManager : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
-            optionsPanel.SetActive(!optionsPanel.activeSelf);
-        if (Input.GetKeyUp(KeyCode.Tab))
+        if (gameManager.GameInProgress)
         {
-            if (statsPanel.activeSelf) statsPanel.SetActive(false);
-            else
+            if (Input.GetKeyUp(KeyCode.Escape))
+                optionsPanel.SetActive(!optionsPanel.activeSelf);
+            if (Input.GetKeyUp(KeyCode.Tab))
             {
-                UpdateStatsPanel();
-                statsPanel.SetActive(true);
+                if (statsPanel.activeSelf)
+                    statsPanel.SetActive(false);
+                else
+                {
+                    UpdateStatsPanel();
+                    statsPanel.SetActive(true);
+                }
             }
         }
     }
@@ -112,7 +116,13 @@ public class UIManager : MonoBehaviour
     }
     public void SetNotificationText(string text = "")
     {
-        notificationText.text = text;
+        if (text == "")
+            notificationText.transform.parent.gameObject.SetActive(false);
+        else
+        {
+            notificationText.transform.parent.gameObject.SetActive(true);
+            notificationText.text = text;
+        }
     }
     public bool IsRollButtonInteractable()
     {
